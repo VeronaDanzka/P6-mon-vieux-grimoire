@@ -14,11 +14,11 @@ const normalizePort = val => {
     return false;
 };
 
-const port = normalizePort(process.env.PORT || '3001');
+const port = normalizePort(process.env.PORT || '4000');
 
 app.set('port', port); 
 
-// verification socket UNIX ou port TCP & afficage des erreurs
+// verification socket UNIX ou port TCP & affichage des erreurs
 const errorHandler = error => {
     if (error.syscall !== 'listen'){
         throw error;
@@ -42,7 +42,7 @@ const server = http.createServer(app);
 
 server.on('error', errorHandler);
 
-// verification socket UNIX ou port TCP & afficage du port d'écoute
+// verification socket UNIX ou port TCP & affichage du port d'écoute
 server.on('listening', () => {
     const address = server.address();
     const bind = typeof address === 'string' ? 'pipe ' + address : 'port ' + port;
