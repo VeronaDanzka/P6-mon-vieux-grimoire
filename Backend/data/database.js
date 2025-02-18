@@ -1,4 +1,3 @@
-require('dotenv').config();
 const mongoose = require('mongoose');
 
 const password = encodeURIComponent(process.env.MONGO_PASSWORD);
@@ -11,10 +10,11 @@ async function connectToMongoDB() {
         console.log('Connexion à MongoDB réussie !');
     } catch (error) {
         console.error('Connexion à MongoDB échouée !', error);
+        process.exit(1);
     }
 }
 
-module.exports = {connectToMongoDB};
+module.exports = connectToMongoDB;
 
 
 

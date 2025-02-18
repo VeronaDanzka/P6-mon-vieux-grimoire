@@ -1,7 +1,9 @@
 const express = require('express');
-const {connectToMongoDB} = require('./data/database');
+const connectToMongoDB = require('./data/database');
+const path = require('path');
 const userRoutes = require('./routes/user');
-require('dotenv').config();
+const booksRoutes = require('./routes/books');
+
 
 // connexion à la base de données
 (async () => { 
@@ -20,5 +22,6 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/auth/', userRoutes);
-
+app.use('/api/books/', booksRoutes);
+app.use('/images', express.static(path.join(__dirname, 'images'))); // route pour afficher les images
 module.exports = app;
