@@ -8,7 +8,7 @@ const auth = require('../middleware/auth');
 router.get('/:id', booksCtrl.getOneBook);
 router.get('/', booksCtrl.getAllBooks);
 router.post('/', auth, uploadImage, processImage, booksCtrl.createBook);
-// router.put('/:id', booksCtrl.modifyBook);
+router.put('/:id', auth, uploadImage, processImage, booksCtrl.modifyBook);
 // router.delete('/:id', booksCtrl.deleteBook);
 // router.post('/:id/rating', booksCtrl.ratingBook);
 

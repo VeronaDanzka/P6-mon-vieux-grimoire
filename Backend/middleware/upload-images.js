@@ -11,7 +11,7 @@ const MIME_TYPES = {
 // Filtrage des fichiers non-images
 const fileFilter = (req, file, callback) => {
     if (!MIME_TYPES[file.mimetype]) {
-      callback(null, false);
+      callback(new Error("Format de fichier non pris en charge. Veuillez envoyer une image JPG, PNG ou WEBP."), false);
     } else {
       callback(null, true);
     }

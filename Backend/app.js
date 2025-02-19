@@ -11,7 +11,7 @@ const booksRoutes = require('./routes/books');
 })();
 
 const app = express();
-app.use(express.json()); 
+app.use(express.json()); // convertir le JSON en objet js pour accéder aux données
 
 // Gestion des CORS
 app.use((req, res, next) => {
