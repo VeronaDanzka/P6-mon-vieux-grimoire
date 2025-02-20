@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports = async (req, res, next) => {
   if (!req.file && req.method === 'POST') {
-    res.status(400).json({ message: "image de couverture requise" });
+    res.status(400).json({ message: "Image de couverture requise" });
   } else if (!req.file && req.method === 'PUT') {
     next();
   }

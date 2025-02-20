@@ -22,6 +22,9 @@ const storage = multer.memoryStorage();
 
 module.exports = multer({ 
   storage,
+  limits: {
+    fileSize: 2 * 1024 * 1024, // 2MB
+  },
   fileFilter
 }).single('image');
 
