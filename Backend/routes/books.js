@@ -5,6 +5,7 @@ const uploadImage = require('../middleware/upload-images');
 const processImage = require('../middleware/process-images');
 const auth = require('../middleware/auth');
 
+router.get('/bestrating', booksCtrl.bestRatingBooks);
 router.get('/:id', booksCtrl.getOneBook);
 router.get('/', booksCtrl.getAllBooks);
 router.post('/:id/rating', auth, booksCtrl.ratingBook);

@@ -20,12 +20,24 @@ const fileFilter = (req, file, callback) => {
 // Configuration de multer avec memoryStorage et fileFilter
 const storage = multer.memoryStorage();
 
-module.exports = multer({ 
+const upload = multer({
   storage,
-  limits: {
-    fileSize: 2 * 1024 * 1024, // 2MB
-  },
-  fileFilter
-}).single('image');
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter,
+});
+
+module.exports = (req, res, next) => {
+  upload.single("image")(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({
+        success: false,
+        message: "Erreur Multer : " + err.message,
+      });
+    } else if (err) {
+      return res.status(400).json({ success: false, message: err.message });
+    }
+    next();
+  });
+};
 
 
