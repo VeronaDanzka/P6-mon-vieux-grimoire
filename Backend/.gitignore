@@ -13,6 +13,10 @@
 
 # images
 /images
+
+# logs
+/logs
+
 # misc
 .DS_Store
 .env

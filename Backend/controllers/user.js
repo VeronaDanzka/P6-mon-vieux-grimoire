@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const { authLogger } = require('../utils/logger');
 
 
 exports.createUser = async (req, res, next) => {
@@ -11,12 +12,15 @@ exports.createUser = async (req, res, next) => {
             password: hash,
         });
         await user.save();
-        res.status(201).json({ message: 'Utilisateur créé !' });
+        authLogger.info(`Utilisateur créé: ${user.email}`);
+        return res.status(201).json({ message: 'Utilisateur créé !' });
     } catch(error) {
         if (error.name === 'ValidationError') {
-            res.status(400).json({ error });
+            authLogger.error(`Erreur dans createUser: ${error.message}`);
+            return res.status(400).json({ error });
         } else {
-            res.status(500).json({ error });
+            authLogger.error(`Erreur dans createUser: ${error.message}`);
+            return res.status(500).json({ error });
         }
     }
 }; 
@@ -24,14 +28,17 @@ exports.createUser = async (req, res, next) => {
 exports.connectUser = async (req, res, next) => {
     try{
         const user = await User.findOne({ email: req.body.email });
-        if(!user){
-            res.status(401).json({ message: 'paire identifiant / mot de passe incorrecte !' });
+        if(!user){            
+            authLogger.error(`Utilisateur non trouvé: ${req.body.email}`);
+            return res.status(401).json({ message: 'paire identifiant / mot de passe incorrecte !' });
         } else {
             const valid = await bcrypt.compare(req.body.password, user.password)
             if(!valid){
-                res.status(401).json({ message: 'paire identifiant / mot de passe incorrecte !' });
+                authLogger.error(`Mot de passe incorrect pour l'utilisateur: ${req.body.email}`);
+                return res.status(401).json({ message: 'paire identifiant / mot de passe incorrecte !' });
             } else {
-                res.status(200).json({ 
+                authLogger.info(`Utilisateur connecté: ${user.email} avec id ${user._id}`);
+                return res.status(200).json({ 
                     userId: user._id,
                     token: jwt.sign(
                         { userId: user._id },
@@ -42,6 +49,7 @@ exports.connectUser = async (req, res, next) => {
             }
         }
     } catch(error) {
-        res.status(500).json({ error });
+        authLogger.error(`Erreur dans connectUser: ${error.message}`);
+        return res.status(500).json({ error });
     }
 };
