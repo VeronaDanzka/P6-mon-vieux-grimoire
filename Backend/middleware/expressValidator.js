@@ -5,7 +5,7 @@ const validateUser = [
         .trim()
         .isEmail()
         .withMessage('Email invalide')
-        .normalizeEmail()
+        .normalizeEmail({gmail_remove_dots: false})
         .custom((value) => {
             if (typeof value !== 'string') {
                 throw new Error("Format email invalide");

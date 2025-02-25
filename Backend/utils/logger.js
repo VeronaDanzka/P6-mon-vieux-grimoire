@@ -2,13 +2,13 @@ const { createLogger, transports, format } = require("winston");
 const path = require("path");
 const fs = require("fs");
 
-// 🔹 Vérifie et crée le dossier logs
+// verifie et crée le dossier logs
 const logDirectory = path.join(__dirname, "../logs");
 if (!fs.existsSync(logDirectory)) {
     fs.mkdirSync(logDirectory, { recursive: true });
 }
 
-// 🔥 Logger principal (Général)
+// logger principal
 const logger = createLogger({
     format: format.combine(
         format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
@@ -21,11 +21,11 @@ const logger = createLogger({
     ]
 });
 
-// 🔥 Logger spécifique pour l'authentification
+// logger spécifique pour l'authentification
 const authLogger = createLogger({
     format: format.combine(
         format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        format.printf(({ timestamp, level, message }) => `${timestamp} [AUTH]: ${message}`)
+        format.printf(({ timestamp, level, message }) => `${timestamp} [AUTH] [${level.toUpperCase()}]: ${message}`)
     ),
     transports: [
         new transports.Console(),

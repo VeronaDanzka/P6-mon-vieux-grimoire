@@ -1,14 +1,16 @@
 const Books = require('../models/book');
 const fs = require('fs').promises;
 const { logger } = require("../utils/logger");
+const sanitizeObject = require('../utils/sanitizeHtml');
+
 
 exports.getAllBooks = async (req, res, next) => {
     try{
-        const books = await Books.find();
+        const books = await Books.find().lean();
         if(books.length === 0){
             return res.status(404).json({ message: 'Aucuns livres trouvés' });
         } else {            
-            return res.status(200).json(books);
+            return res.status(200).json(sanitizeObject(books));
         }
     } catch (error) {
         logger.error(`Erreur dans getAllBooks: ${error.message}`);
@@ -18,11 +20,11 @@ exports.getAllBooks = async (req, res, next) => {
 
 exports.getOneBook = async (req, res, next) => {
     try {
-        const book = await Books.findOne({ _id: req.params.id });
+        const book = await Books.findOne({ _id: req.params.id }).lean();
         if (!book) {
             return res.status(404).json({ message: 'Aucun livre trouvé' });
         } else {
-            return res.status(200).json(book);
+            return res.status(200).json(sanitizeObject(book));
         }
     } catch (error) {
         logger.error(`Erreur dans getOneBook: ${error.message}`);
@@ -34,9 +36,10 @@ exports.createBook = async (req, res, next) => {
     const bookObject = JSON.parse(req.body.book); // changement de la chaîne string renvoyé par multer en objet
     delete bookObject._id;
     delete bookObject._userId; // suppression de l'id utilisateur envoyé par le client pour utiliser celui du token
+    const sanitizedBookObject = sanitizeObject(bookObject);
     try {
         const book = new Books({
-            ...bookObject,
+            ...sanitizedBookObject,
             userId: req.auth.userId,
             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
         });
@@ -59,6 +62,9 @@ exports.modifyBook = async (req, res, next) => {
         const book = await Books.findOne({ _id: req.params.id });
         const fileName = book.imageUrl.split('/images/')[1]; // récupération du nom du fichier image
         // verification que l'utilisateur est bien le propriétaire du livre
+        if(!book){
+            return res.status(404).json({ message: 'Aucun livre trouvé' });
+        }
         if(req.auth.userId !== book.userId){
             logger.error(`Erreur dans modifyBook par: ${req.auth.userId} pour modification du livre: ${req.params.id}`);
             return res.status(401).json({ message: 'Utilisateur non autorisé' });
@@ -70,8 +76,8 @@ exports.modifyBook = async (req, res, next) => {
                     userId: req.auth.userId,
                     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
                 } : { ...req.body, userId: req.auth.userId }; // si aucune image n'est envoyée
-            
-                await Books.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id });
+                const sanitizedBook = sanitizeObject(bookObject);
+                await Books.updateOne({ _id: req.params.id }, { ...sanitizedBook, _id: req.params.id });
                 if(req.file){
                     await fs.unlink(`images/${fileName}`); // suppression de l'ancienne image
                 }

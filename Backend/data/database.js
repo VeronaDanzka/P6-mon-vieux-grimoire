@@ -4,8 +4,7 @@ const password = encodeURIComponent(process.env.MONGO_PASSWORD);
 
 async function connectToMongoDB() {
     try {
-        await mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${password}@${process.env.MONGO_CLUSTER}/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority`, 
-        { useNewUrlParser: true, useUnifiedTopology: true });
+        await mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${password}@${process.env.MONGO_CLUSTER}/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority`);
         
         console.log('Connexion à MongoDB réussie !');
     } catch (error) {

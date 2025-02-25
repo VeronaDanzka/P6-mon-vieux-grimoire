@@ -19,8 +19,21 @@ app.disable("x-powered-by"); // désactivation de l'information de l'utilisation
 // Journalisation de toutes les requêtes HTTP avec Winston + Morgan
 app.use(morgan("combined", {
     stream: {
-        write: (message) => logger.info(`[HTTP] ${message.trim()}`), // [HTTP] pour différencier des autres logs
-        write: (message) => authLogger.info(`[HTTP] ${message.trim()}`) // [HTTP] pour différencier des autres logs
+        write: (message) => {
+            // Vérifier si la requête concerne l'authentification
+            const isAuthRoute = message.includes("/api/auth/");
+
+            // Vérifier si la requête a généré une erreur
+            const isError = message.includes(" 4") || message.includes(" 5");
+
+            if (isError) { 
+                isAuthRoute ? authLogger.error(message.trim()) : logger.error(message.trim());
+            } else {
+                isAuthRoute ? authLogger.info(message.trim()) : logger.info(message.trim());   
+            }
+
+        }
+
     }
 }));
 
