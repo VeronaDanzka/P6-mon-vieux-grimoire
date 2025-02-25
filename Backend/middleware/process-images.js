@@ -1,5 +1,6 @@
 const sharp = require('sharp');
 const path = require('path');
+const fs = require('fs').promises;
 
 module.exports = async (req, res, next) => {
   if (!req.file && req.method === 'POST') {
@@ -12,6 +13,8 @@ module.exports = async (req, res, next) => {
       const filename = req.file.originalname.split(' ').join('_').replace(/\.[^/.]+$/, ""); // Supprime l'extension d'origine
       const newFilename = `${filename}_${Date.now()}.webp`;
       const outputPath = path.join('images', newFilename); // Chemin final de sauvegarde
+
+      await fs.mkdir('images', { recursive: true }) // créer le dossier image s'il n'existe pas
 
       // Traitement de l'image avec sharp directement depuis buffer
       await sharp(req.file.buffer)
