@@ -27,7 +27,7 @@ const upload = multer({
 });
 
 module.exports = (req, res, next) => {
-  upload.single("image")(req, res, (err) => {
+  upload.fields([{ name: "image", maxCount: 1 }])(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       return res.status(400).json({
         success: false,

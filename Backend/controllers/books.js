@@ -33,7 +33,7 @@ exports.getOneBook = async (req, res, next) => {
 };
 
 exports.createBook = async (req, res, next) => {
-    const bookObject = JSON.parse(req.body.book); // changement de la chaîne string renvoyé par multer en objet
+    const bookObject = req.body.book; // changement de la chaîne string renvoyé par multer en objet
     delete bookObject._id;
     delete bookObject._userId; // suppression de l'id utilisateur envoyé par le client pour utiliser celui du token
     const sanitizedBookObject = sanitizeObject(bookObject);
@@ -41,7 +41,7 @@ exports.createBook = async (req, res, next) => {
         const book = new Books({
             ...sanitizedBookObject,
             userId: req.auth.userId,
-            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.files.image[0].filename}`
         });
         await book.save();
         logger.info(`création de livre réussie par: ${req.auth.userId}`);
@@ -70,15 +70,15 @@ exports.modifyBook = async (req, res, next) => {
             return res.status(401).json({ message: 'Utilisateur non autorisé' });
         } else {
             delete req.body.userId; // suppression de l'id utilisateur envoyé par le client pour utiliser celui du token
-            const bookObject = req.file ? // si une image est envoyée
+            const bookObject = req.files ? // si une image est envoyée
                 {
-                    ...JSON.parse(req.body.book),
+                    ...req.body.book,
                     userId: req.auth.userId,
-                    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.files.image[0].filename}`
                 } : { ...req.body, userId: req.auth.userId }; // si aucune image n'est envoyée
                 const sanitizedBook = sanitizeObject(bookObject);
                 await Books.updateOne({ _id: req.params.id }, { ...sanitizedBook, _id: req.params.id });
-                if(req.file){
+                if(req.files){
                     await fs.unlink(`images/${fileName}`); // suppression de l'ancienne image
                 }
                 logger.info(`Livre modifié par: ${req.auth.userId} pour le livre: ${req.params.id}`);
